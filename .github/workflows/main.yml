@@ -1,0 +1,48 @@
+name: Build image and Deploy
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - '*'  # Match all branches for pull requests
+  workflow_dispatch:
+
+env:
+  AWS_REGION: us-east-1
+  ENV_PREFIX: prd
+  ECR: api
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: staging
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          IMAGE_TAG=$(git rev-parse --short HEAD)
+          export DOCKER_DEFAULT_PLATFORM=linux/amd64
+          docker build -t $ECR_REGISTRY/$ECR:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/${{ env.ECR }}:$IMAGE_TAG
+          echo "image=$ECR_REGISTRY/${{ env.ECR }}:$IMAGE_TAG" >> $GITHUB_OUTPUT
