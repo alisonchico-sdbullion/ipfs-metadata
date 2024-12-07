@@ -6,20 +6,20 @@ on:
       - main
   pull_request:
     branches:
-      - '*'  # Match all branches for pull requests
+      - '*'
   workflow_dispatch:
 
 env:
   AWS_REGION: us-east-1
   ENV_PREFIX: prd
-  ECR: api
+  ECR: ipfs
 
 jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
     timeout-minutes: 45
-    environment: staging
+    environment: test
 
     steps:
       - name: Checkout

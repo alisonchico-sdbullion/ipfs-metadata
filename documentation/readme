@@ -1,0 +1,8 @@
+first execute terraform apply -target=module.s3_tf-state.aws_s3_bucket.this[0]
+
+after terraform apply -target=aws_ecr_repository.api
+
+terraform apply -target=aws_dynamodb_table.terraform_locks
+
+
+remove comment from backend provider

@@ -1,3 +1,3 @@
-resource "aws_ecr_repository" "api" {
-  name = local.name
+resource "aws_ecr_repository" "ipfs" {
+  name = "ipfs"
 }
