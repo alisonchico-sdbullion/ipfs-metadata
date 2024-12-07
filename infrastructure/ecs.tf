@@ -36,9 +36,36 @@ module "ecs_service" {
   name                   = local.name
   cluster_arn            = module.ecs_cluster.arn
   enable_execute_command = true
-  cpu                    = local.containers_template.cpu
-  memory                 = local.containers_template.memory
-  container_definitions  = local.containers_template
+  cpu                    = var.cpu
+  memory                 = var.memory
+  # Container definition(s)
+  container_definitions = {
+    (local.name) = {
+      cpu       = var.cpu
+      memory    = var.memory
+      essential = true
+      image     = "public.ecr.aws/aws-containers/ecsdemo-frontend:776fd50"
+      port_mappings = [
+        {
+          name          = local.name
+          containerPort = var.app_port
+          hostPort      = var.app_port
+          protocol      = "tcp"
+        }
+      ]
+      readonly_root_filesystem = false
+      enable_cloudwatch_logging = true
+      log_configuration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group                    = "/ecs/${local.name}"
+          awslogs-region                  = local.region
+          awslogs-stream-prefix         = "ecs"
+        }
+      }
+      secrets = join(",", [for secret in local.secrets : jsonencode(secret)])
+    }
+  }
   iam_role_statements = {
     secrets_access = {
       effect  = "Allow"
@@ -51,20 +78,20 @@ module "ecs_service" {
   }
   load_balancer = {
     service = {
-      target_group_arn = module.ecs_alb.target_groups["${local.name}"].arn
-      container_name   = local.containers_template.app_name
-      container_port   = local.containers_template.app_port
+      target_group_arn = module.ecs_alb.target_groups["golang-app"].arn
+      container_name   = local.name
+      container_port   = var.app_port
     }
   }
   subnet_ids = module.vpc.private_subnets
   security_group_rules = {
     alb_ingress_3000 = {
       type                     = "ingress"
-      from_port                = local.containers_template.app_port
-      to_port                  = local.containers_template.app_port
+      from_port                = var.app_port
+      to_port                  = var.app_port
       protocol                 = "tcp"
       description              = "Service port"
-      source_security_group_id = module.alb.security_group_id
+      source_security_group_id = module.ecs_alb.security_group_id
     }
     egress_all = {
       type        = "egress"

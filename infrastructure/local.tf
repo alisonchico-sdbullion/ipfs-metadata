@@ -32,6 +32,7 @@ locals {
       cpu          = var.cpu
       memory       = var.memory
       secrets      = join(",", [for secret in local.secrets : jsonencode(secret)])
+      environment  = var.environment
       region       = local.region
     }
   )

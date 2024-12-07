@@ -6,22 +6,15 @@ module "ecs_alb" {
   vpc_id                     = module.vpc.vpc_id
   subnets                    = module.vpc.public_subnets
   enable_deletion_protection = true
-
-  preserve_host_header       = true
-  xff_header_processing_mode = "preserve"
   security_groups            = [module.ecs_service.security_group_id]
 
-  access_logs = {
-    bucket = module.log_bucket.s3_bucket_id
-    prefix = "access-logs"
-  }
-
-  target_groups = [
-    {
+  target_groups = {
+    golang-app = {
       name                 = "${local.name}"
       backend_protocol     = "HTTP"
-      backend_port         = local.containers_template.app_port
-      target_type          = "instance"
+      backend_port         = var.app_port
+      target_type          = "ip"
+      target_id            = ""
       deregistration_delay = 5
       health_check = {
         enabled  = true
@@ -31,13 +24,14 @@ module "ecs_alb" {
         matcher  = "200"
       }
     },
-  ]
+  }
+
   listeners = {
     default-http = {
       port     = 80
       protocol = "HTTP"
       forward = {
-        target_group_key = "${local.name}"
+        target_group_key = "golang-app"
       }
     }
   }

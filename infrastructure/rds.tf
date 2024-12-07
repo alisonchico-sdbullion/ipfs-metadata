@@ -11,12 +11,12 @@ module "db" {
   allocated_storage                     = 20
   max_allocated_storage                 = 100
   db_name                               = "ipfs"
-  username                              = jsondecode(aws_secretsmanager_secret_version.db_master_password.secret_string)["username"]
+  username                              = "ipfs"
   manage_master_user_password           = true
   port                                  = 5432
   multi_az                              = true
   db_subnet_group_name                  = module.vpc.database_subnet_group
-  vpc_security_group_ids                = [module.security_group.security_group_id]
+  vpc_security_group_ids                = [module.db_sg.security_group_id]
   maintenance_window                    = "Mon:00:00-Mon:03:00"
   backup_window                         = "03:00-06:00"
   enabled_cloudwatch_logs_exports       = ["postgresql", "upgrade"]

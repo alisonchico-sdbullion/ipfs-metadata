@@ -6,6 +6,10 @@ variable "region" {
   type = string
 }
 
+variable "environment" {
+  type = string
+}
+
 variable "docker_image" {
   type        = string
   description = "The docker image contained in a docker repository"
