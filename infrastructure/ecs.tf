@@ -70,7 +70,13 @@ module "ecs_service" {
           awslogs-stream-prefix = "ecs"
         }
       }
-      secrets = local.secrets
+      # Inject secrets into the container
+      secrets = [
+        {
+          name      = "DB_SECRET" # Environment variable name in the container
+          valueFrom = aws_secretsmanager_secret.db_connection_details.arn
+        }
+      ]
     }
   }
   task_exec_iam_statements = {

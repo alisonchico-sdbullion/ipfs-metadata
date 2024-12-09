@@ -24,24 +24,27 @@ type NFTMetadata struct {
 }
 
 func setupDB() (*sqlx.DB, error) {
-	// Load environment variables from .env file
+	// Load environment variables from .env file (if applicable)
 	_ = godotenv.Load()
 
-	// Helper function to retrieve environment variables with fallback
-	getEnv := func(key, fallback string) string {
-		value := os.Getenv(key)
-		if value == "" {
-			return fallback
-		}
-		return value
+	// Retrieve the secret value
+	dbSecret := os.Getenv("DB_SECRET")
+	if dbSecret == "" {
+		log.Fatal("DB_SECRET environment variable is not set")
 	}
 
-	// Retrieve environment variables, prioritizing those set in the container
-	user := getEnv("username", "")
-	password := getEnv("password", "")
-	dbname := getEnv("db_name", "")
-	host := getEnv("db_address", "localhost")
-	port := getEnv("port", "5432")
+	// Parse the JSON string
+	var dbConfig map[string]string
+	if err := json.Unmarshal([]byte(dbSecret), &dbConfig); err != nil {
+		log.Fatalf("Failed to parse DB_SECRET: %v", err)
+	}
+
+	// Extract values from the parsed JSON
+	user := dbConfig["username"]
+	password := dbConfig["password"]
+	dbname := dbConfig["db_name"]
+	host := dbConfig["db_address"]
+	port := dbConfig["port"]
 
 	// Validate required variables
 	if user == "" || password == "" || dbname == "" {

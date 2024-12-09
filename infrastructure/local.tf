@@ -27,24 +27,8 @@ locals {
 
   secrets = [
     {
-      name      = "username"
-      valueFrom = aws_secretsmanager_secret_version.db_connection_details.secret_string["username"]
-    },
-    {
-      name      = "password"
-      valueFrom = module.db.db_instance_master_user_secret_arn.secret_string["password"]
-    },
-    {
-      name      = "db_name"
-      valueFrom = aws_secretsmanager_secret_version.db_connection_details.secret_string["db_name"]
-    },
-    {
-      name      = "db_address"
-      valueFrom = aws_secretsmanager_secret_version.db_connection_details.secret_string["db_address"]
-    },
-    {
-      name      = "port"
-      valueFrom = aws_secretsmanager_secret_version.db_connection_details.secret_string["port"]
+      name      = "DB_SECRET"
+      valueFrom = aws_secretsmanager_secret.db_connection_details.arn
     }
   ]
 }
