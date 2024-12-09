@@ -1,19 +1,19 @@
 variable "name" {
-  type = string
+  type        = string
   description = "Name of the golang app"
-  default     = "ipfs" 
+  default     = "ipfs"
 }
 
 variable "region" {
-  type = string
+  type        = string
   description = "AWS Region where we will deploy"
-  default = "us-east-1"  
+  default     = "us-east-1"
 }
 
 variable "environment" {
-  type = string
+  type        = string
   description = "Environment Name"
-  default = "test"  
+  default     = "test"
 }
 
 variable "app_port" {

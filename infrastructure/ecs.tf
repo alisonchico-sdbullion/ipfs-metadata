@@ -53,14 +53,14 @@ module "ecs_service" {
           protocol      = "tcp"
         }
       ]
-      readonly_root_filesystem = false
+      readonly_root_filesystem  = false
       enable_cloudwatch_logging = true
       log_configuration = {
         logDriver = "awslogs"
         options = {
-          awslogs-group                    = "/ecs/${local.name}"
-          awslogs-region                  = local.region
-          awslogs-stream-prefix         = "ecs"
+          awslogs-group         = "/ecs/${local.name}"
+          awslogs-region        = local.region
+          awslogs-stream-prefix = "ecs"
         }
       }
       secrets = local.secrets
