@@ -24,27 +24,4 @@ locals {
   availability_zones = slice(data.aws_availability_zones.available.names, 0, 3)
 
   ecs_image = "${data.aws_ecr_repository.ipfs_ecr_repository.repository_url}:${data.aws_ecr_image.ipfs_ecr.image_tags[0]}"
-
-  secrets = [
-    {
-      name      = "username"
-      valueFrom = aws_secretsmanager_secret_version.db_connection_details.secret_string["username"]
-    },
-    {
-      name      = "password"
-      valueFrom = module.db.db_instance_master_user_secret_arn.secret_string["password"]
-    },
-    {
-      name      = "db_name"
-      valueFrom = aws_secretsmanager_secret_version.db_connection_details.secret_string["db_name"]
-    },
-    {
-      name      = "db_address"
-      valueFrom = aws_secretsmanager_secret_version.db_connection_details.secret_string["db_address"]
-    },
-    {
-      name      = "port"
-      valueFrom = aws_secretsmanager_secret_version.db_connection_details.secret_string["port"]
-    }
-  ]
 }
