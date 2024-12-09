@@ -40,7 +40,7 @@ EOF
 resource "aws_iam_role" "ecsTaskRole" {
   name               = "${local.name}-task-role"
   assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
-  tags = local.tags
+  tags               = local.tags
 }
 
 resource "aws_iam_role_policy_attachment" "attach_ecs_ssm_task_policy" {
