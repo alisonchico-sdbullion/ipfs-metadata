@@ -5,7 +5,7 @@ FROM golang:1.21 AS builder
 WORKDIR /app
 COPY . .
 RUN go mod tidy 
-RUN go build -v -o go-app
+RUN CGO_ENABLED=0 GOOS=linux go build -v -o go-app
 
 # Second Stage: Add Ca Certificates
 FROM alpine:latest as ca-certificates

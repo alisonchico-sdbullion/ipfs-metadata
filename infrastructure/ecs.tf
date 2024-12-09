@@ -1,3 +1,10 @@
+
+resource "aws_cloudwatch_log_group" "ecs_log_group" {
+  name              = "/ecs/${local.name}"
+  retention_in_days = 30
+  tags              = local.tags
+}
+
 # ###############################################################################
 # # Cluster
 # ###############################################################################
@@ -58,7 +65,7 @@ module "ecs_service" {
       log_configuration = {
         logDriver = "awslogs"
         options = {
-          awslogs-group         = "/ecs/${local.name}"
+          awslogs-group         = aws_cloudwatch_log_group.ecs_log_group.name
           awslogs-region        = local.region
           awslogs-stream-prefix = "ecs"
         }
@@ -66,7 +73,7 @@ module "ecs_service" {
       secrets = local.secrets
     }
   }
-  iam_role_statements = {
+  task_exec_iam_statements = {
     secrets_access = {
       effect  = "Allow"
       actions = ["secretsmanager:GetSecretValue"]
@@ -89,7 +96,7 @@ module "ecs_service" {
   }
   load_balancer = {
     service = {
-      target_group_arn = module.ecs_alb.target_groups["golang-app"].arn
+      target_group_arn = aws_lb_target_group.ecs_target_group.arn
       container_name   = local.name
       container_port   = var.app_port
     }
