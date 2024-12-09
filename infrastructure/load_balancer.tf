@@ -1,3 +1,6 @@
+
+
+
 module "ecs_alb" {
   source  = "terraform-aws-modules/alb/aws"
   version = "9.12.0"
@@ -8,32 +11,28 @@ module "ecs_alb" {
   enable_deletion_protection = true
   security_groups            = [module.ecs_service.security_group_id]
 
-  # target_groups = {
-  #   golang-app = {
-  #     name                 = "${local.name}"
-  #     backend_protocol     = "HTTP"
-  #     backend_port         = var.app_port
-  #     target_type          = "ip"
-  #     deregistration_delay = 5
-  #     health_check = {
-  #       enabled  = true
-  #       path     = "/metadata"
-  #       port     = "traffic-port"
-  #       protocol = "HTTP"
-  #       matcher  = "200"
-  #     }
-  #   },
-  # }
-
-  # listeners = {
-  #   default-http = {
-  #     port     = 80
-  #     protocol = "HTTP"
-  #     forward = {
-  #       target_group_key = "golang-app"
-  #     }
-  #   }
-  # }
+  security_group_ingress_rules = {
+    all_http = {
+      from_port   = 80
+      to_port     = 80
+      ip_protocol = "tcp"
+      description = "HTTP web traffic"
+      cidr_ipv4   = "0.0.0.0/0"
+    }
+    all_https = {
+      from_port   = 443
+      to_port     = 443
+      ip_protocol = "tcp"
+      description = "HTTPS web traffic"
+      cidr_ipv4   = "0.0.0.0/0"
+    }
+  }
+  security_group_egress_rules = {
+    all = {
+      ip_protocol = "-1"
+      cidr_ipv4   = "0.0.0.0/0"
+    }
+  }
 }
 
 resource "aws_lb_target_group" "ecs_target_group" {
@@ -65,7 +64,7 @@ resource "aws_lb_listener" "ecs_http_listener" {
   protocol          = "HTTP"
 
   default_action {
-    type             = "forward"
+    type = "forward"
     target_group_arn = aws_lb_target_group.ecs_target_group.arn
   }
 }
