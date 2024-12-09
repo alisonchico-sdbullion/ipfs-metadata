@@ -76,15 +76,15 @@ module "ecs_service" {
       ]
     }
     cloudwatch_logs_access = {
-        effect  = "Allow"
-        actions = [
+      effect = "Allow"
+      actions = [
         "logs:CreateLogGroup",
         "logs:CreateLogStream",
         "logs:PutLogEvents"
-        ]
-        resources = [
+      ]
+      resources = [
         "arn:aws:logs:${local.region}:${data.aws_caller_identity.current.account_id}:log-group:/ecs/${local.name}*"
-        ]
+      ]
     }
   }
   load_balancer = {
