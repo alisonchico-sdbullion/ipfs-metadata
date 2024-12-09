@@ -25,17 +25,28 @@ type NFTMetadata struct {
 
 func setupDB() (*sqlx.DB, error) {
 	// Load environment variables from .env file
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	_ = godotenv.Load()
+
+	// Helper function to retrieve environment variables with fallback
+	getEnv := func(key, fallback string) string {
+		value := os.Getenv(key)
+		if value == "" {
+			return fallback
+		}
+		return value
 	}
 
-	// Get the environment variables
-	user := os.Getenv("POSTGRES_USER")
-	password := os.Getenv("POSTGRES_PASSWORD")
-	dbname := os.Getenv("POSTGRES_DB")
-	host := os.Getenv("POSTGRES_HOST")
-	port := os.Getenv("POSTGRES_PORT")
+	// Retrieve environment variables, prioritizing those set in the container
+	user := getEnv("username", "")
+	password := getEnv("password", "")
+	dbname := getEnv("db_name", "")
+	host := getEnv("db_address", "localhost")
+	port := getEnv("port", "5432")
+
+	// Validate required variables
+	if user == "" || password == "" || dbname == "" {
+		log.Fatal("Required database environment variables are missing: username, password, db_name")
+	}
 
 	// Construct the connection string
 	connStr := fmt.Sprintf("user=%s password=%s dbname=%s host=%s port=%s sslmode=disable", user, password, dbname, host, port)
@@ -46,6 +57,7 @@ func setupDB() (*sqlx.DB, error) {
 		return nil, err
 	}
 
+	// Assume `schema` is predefined elsewhere
 	db.MustExec(schema)
 	return db, nil
 }
