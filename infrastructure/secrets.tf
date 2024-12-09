@@ -1,5 +1,5 @@
 resource "aws_secretsmanager_secret" "db_connection_details" {
-  name        = "${local.name}-db-connection-details"
+  name        = "${local.name}-db-connection-detail"
   description = "Connection details for the RDS database ${local.name}"
   tags        = local.tags
 }
