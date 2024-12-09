@@ -71,13 +71,28 @@ module "ecs_service" {
         }
       }
       # Inject secrets into the container
-      environment = {
-        username = jsondecode(aws_secretsmanager_secret_version.db_connection_details.secret_string)["username"]
-        username = jsondecode(aws_secretsmanager_secret_version.db_connection_details.secret_string)["db_name"]
-        username = jsondecode(aws_secretsmanager_secret_version.db_connection_details.secret_string)["db_address"]
-        username = jsondecode(aws_secretsmanager_secret_version.db_connection_details.secret_string)["port"]
-        username = jsondecode(module.db.db_instance_master_user_secret_arn.secret_string)["password"]
-      }
+      environment = [
+        {
+          name  = "username"
+          value = jsondecode(aws_secretsmanager_secret_version.db_connection_details.secret_string)["username"]
+        },
+        {
+          name  = "db_name"
+          value = jsondecode(aws_secretsmanager_secret_version.db_connection_details.secret_string)["db_name"]
+        },
+        {
+          name  = "db_address"
+          value = jsondecode(aws_secretsmanager_secret_version.db_connection_details.secret_string)["db_address"]
+        },
+        {
+          name  = "port"
+          value = jsondecode(aws_secretsmanager_secret_version.db_connection_details.secret_string)["port"]
+        },
+        {
+          name  = "password"
+          value = jsondecode(data.aws_secretsmanager_secret_version.db_instance_secret.secret_string)["password"]
+        }
+      ]
     }
   }
   task_exec_iam_statements = {
