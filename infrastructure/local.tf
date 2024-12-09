@@ -1,6 +1,16 @@
 data "aws_caller_identity" "current" {}
 data "aws_availability_zones" "available" {}
 
+data "aws_ecr_repository" "ipfs_ecr_repository" {
+  name = data.aws_ecr_image.ipfs_ecr.repository_name
+}
+
+data "aws_ecr_image" "ipfs_ecr" {
+  repository_name = "ipfs"
+  most_recent     = true
+}
+
+
 locals {
   region = var.region
   name   = var.name
@@ -13,6 +23,8 @@ locals {
   vpc_cidr           = "10.0.0.0/16"
   availability_zones = slice(data.aws_availability_zones.available.names, 0, 3)
 
+  ecs_image = "${data.aws_ecr_repository.ipfs_ecr_repository.repository_url}:${data.aws_ecr_image.ipfs_ecr.image_tags[0]}"
+
   secrets = [
     {
       name      = "DB_ADDRESS"
@@ -23,17 +35,4 @@ locals {
       valueFrom = module.db.db_instance_master_user_secret_arn
     }
   ]
-
-  containers_template = templatefile("${path.module}/app.json.tpl",
-    {
-      app_name     = local.name
-      docker_image = var.docker_image
-      app_port     = var.app_port
-      cpu          = var.cpu
-      memory       = var.memory
-      secrets      = join(",", [for secret in local.secrets : jsonencode(secret)])
-      environment  = var.environment
-      region       = local.region
-    }
-  )
 }

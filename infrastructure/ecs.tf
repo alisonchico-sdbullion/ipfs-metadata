@@ -44,7 +44,7 @@ module "ecs_service" {
       cpu       = var.cpu
       memory    = var.memory
       essential = true
-      image     = "public.ecr.aws/aws-containers/ecsdemo-frontend:776fd50"
+      image     = local.ecs_image
       port_mappings = [
         {
           name          = local.name
@@ -63,7 +63,7 @@ module "ecs_service" {
           awslogs-stream-prefix         = "ecs"
         }
       }
-      secrets = join(",", [for secret in local.secrets : jsonencode(secret)])
+      secrets = local.secrets
     }
   }
   iam_role_statements = {

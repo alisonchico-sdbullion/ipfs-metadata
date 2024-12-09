@@ -1,18 +1,19 @@
 variable "name" {
   type = string
+  description = "Name of the golang app"
+  default     = "ipfs" 
 }
 
 variable "region" {
   type = string
+  description = "AWS Region where we will deploy"
+  default = "us-east-1"  
 }
 
 variable "environment" {
   type = string
-}
-
-variable "docker_image" {
-  type        = string
-  description = "The docker image contained in a docker repository"
+  description = "Environment Name"
+  default = "test"  
 }
 
 variable "app_port" {

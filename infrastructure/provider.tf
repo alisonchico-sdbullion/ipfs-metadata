@@ -4,11 +4,6 @@ terraform {
       source = "hashicorp/aws"
     }
   }
-    backend "s3" {
-      bucket         = "iac-tfstate-blockparty-exam-alison"
-      key            = "ecs/api.tfstate"
-      region         = "us-east-1"
-    }
 }
 
 resource "aws_dynamodb_table" "terraform_locks" {
